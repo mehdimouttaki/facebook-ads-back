@@ -1,6 +1,8 @@
 package com.example.adsfacebookads.controller;
 
 
+import com.example.adsfacebookads.dto.UserRequest;
+import com.example.adsfacebookads.dto.UserResponse;
 import com.example.adsfacebookads.entity.User;
 import com.example.adsfacebookads.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,9 @@ public class UserController {
         boolean existed= userService.existByUsername("admin");
         if (!existed){
             User user =new User();
-
+            user.setFirstName("ADMIN");
+            user.setLastName("Admin");
+            user.setEmail("admin@admin.com");
             user.setUsername("admin");
             user.setPassword(passwordEncoder.encode("123456"));
             userService.save(user);
@@ -49,8 +53,8 @@ public class UserController {
 
     @PostMapping("/users") //ADMIN
     @PreAuthorize("hasAuthority('ADMIN')")
-    ResponseEntity<User> createUser(@RequestBody @Valid User user){
-        return userService.createUser(user);
+    UserResponse createUser(@RequestBody @Valid UserRequest request) throws Exception {
+        return userService.createUser(request);
     }
 
     @PutMapping("/users/{userId}")

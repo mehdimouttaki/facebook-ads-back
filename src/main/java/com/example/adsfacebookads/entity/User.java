@@ -14,6 +14,12 @@ public class User {
     @Id
     @GeneratedValue( strategy = GenerationType.AUTO)
     private int userId;
+
+    private String firstName ;
+
+    private String lastName ;
+
+    private String email ;
     @Column(name="user_name")
     @NotNull
     @NotEmpty
