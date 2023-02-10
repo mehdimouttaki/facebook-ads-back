@@ -3,6 +3,8 @@ package com.example.adsfacebookads.controller;
 
 import com.example.adsfacebookads.dto.UserRequest;
 import com.example.adsfacebookads.dto.UserResponse;
+import com.example.adsfacebookads.entity.Role;
+import com.example.adsfacebookads.entity.RoleRepository;
 import com.example.adsfacebookads.entity.User;
 import com.example.adsfacebookads.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class UserController {
     UserService userService;
     @Autowired
     PasswordEncoder passwordEncoder ;
+    @Autowired
+    private RoleRepository roleRepository;
+
     @PostConstruct
     public void init(){
         boolean existed= userService.existByUsername("admin");
@@ -37,6 +42,24 @@ public class UserController {
             user.setPassword(passwordEncoder.encode("123456"));
             userService.save(user);
         }
+
+    }
+
+    @PostConstruct
+    public void role(){
+
+
+            Role role =new Role();
+            role.setName("ADMIN");
+            roleRepository.save(role);
+
+    }
+    @PostConstruct
+    public void roleUser(){
+
+            Role role =new Role();
+            role.setName("USER");
+            roleRepository.save(role);
 
     }
     @GetMapping("/users") //ADMIN and EDITOR
