@@ -4,7 +4,7 @@ package com.example.adsfacebookads.controller;
 import com.example.adsfacebookads.dto.UserRequest;
 import com.example.adsfacebookads.dto.UserResponse;
 import com.example.adsfacebookads.entity.Role;
-import com.example.adsfacebookads.entity.RoleRepository;
+import com.example.adsfacebookads.repository.RoleRepository;
 import com.example.adsfacebookads.entity.User;
 import com.example.adsfacebookads.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
 @Validated
+@CrossOrigin("http://localhost:4200")
 public class UserController {
     @Autowired
     UserService userService;
@@ -31,37 +32,19 @@ public class UserController {
     private RoleRepository roleRepository;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         boolean existed= userService.existByUsername("admin");
         if (!existed){
-            User user =new User();
-            user.setFirstName("ADMIN");
-            user.setLastName("Admin");
-            user.setEmail("admin@admin.com");
-            user.setUsername("admin");
-            user.setPassword(passwordEncoder.encode("123456"));
+            Set<Role> roles = new HashSet<>();
+            roles.add(new Role("ADMIN"));
+            roles.add(new Role("USER"));
+            User user = new User("ADMIN", "Admin", "admin@admin.com", "admin" , passwordEncoder.encode("123456"), roles);
+
             userService.save(user);
         }
 
     }
 
-    @PostConstruct
-    public void role(){
-
-
-            Role role =new Role();
-            role.setName("ADMIN");
-            roleRepository.save(role);
-
-    }
-    @PostConstruct
-    public void roleUser(){
-
-            Role role =new Role();
-            role.setName("USER");
-            roleRepository.save(role);
-
-    }
     @GetMapping("/users") //ADMIN and EDITOR
     @PreAuthorize("hasAuthority('ADMIN')")
     List<User> findAllUsers(){
@@ -90,6 +73,11 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     ResponseEntity<String> deleteUserById(@PathVariable @Min(1) int userId){
         return userService.deleteUserById(userId);
+    }
+
+    @GetMapping("/hello")
+    public String getHello() {
+        return "hello world";
     }
 
 }
