@@ -32,7 +32,7 @@ public class UserService {
     @Autowired
     private UserRequestMapper userRequestMapper;
     @Autowired
-    private USerResponseMapper uSerResponseMapper;
+    private USerResponseMapper userResponseMapper;
 
     public boolean existByUsername(String username) {
         return userRepository.existsByUsername(username);
@@ -58,23 +58,27 @@ public class UserService {
         user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setRoles(new HashSet<>());
         for (Long roles : request.getRoles()) {
-            Role role = roleRepository.findById(roles).orElseThrow(() -> new ResourceNotFoundException("Role Id Not Found "));
+            Role role = roleRepository.findById(roles).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roles + " Not Found"));
             user.getRoles().add(role);
         }
-        return uSerResponseMapper.sourceToTarget(userRepository.save(user));
+        return userResponseMapper.sourceToTarget(userRepository.save(user));
     }
 
-    public ResponseEntity<User> updateUser(User newUser, int userId) {
-        userRepository.findById(userId)
+    public UserResponse updateUser(UserRequest userRequest, int userId) throws Exception {
+        User oldUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User Id : %d is not found", userId)));
+        User newUser = userRequestMapper.targetToSource(userRequest);
+        newUser.setRoles(new HashSet<>());
+        userRequest.getRoles().forEach(roleId -> newUser.getRoles().add(roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roleId + " Not Found"))));
         newUser.setUserId(userId);
-        return ResponseEntity.ok(userRepository.save(newUser));
+        newUser.setPassword(oldUser.getPassword());
+        return userResponseMapper.sourceToTarget(userRepository.save(newUser));
     }
 
-    public ResponseEntity<String> deleteUserById(int userId) {
+    public String deleteUserById(int userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User Id : %d is not found", userId)));
         userRepository.deleteById(user.getUserId());
-        return ResponseEntity.ok().body("User id: " + userId + " is deleted.");
+        return "User id: " + userId + " is deleted.";
     }
 }
