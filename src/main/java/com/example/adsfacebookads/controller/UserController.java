@@ -1,6 +1,8 @@
 package com.example.adsfacebookads.controller;
 
 
+import com.example.adsfacebookads.dto.UpdatePasswordRequest;
+import com.example.adsfacebookads.dto.UserDTO;
 import com.example.adsfacebookads.dto.UserRequest;
 import com.example.adsfacebookads.dto.UserResponse;
 import com.example.adsfacebookads.entity.Role;
@@ -47,13 +49,13 @@ public class UserController {
 
     @GetMapping("/users") //ADMIN and EDITOR
     @PreAuthorize("hasAuthority('ADMIN')")
-    List<User> findAllUsers() {
+    List<UserResponse> findAllUsers() throws Exception {
         return userService.findAllUsers();
     }
 
     @GetMapping("/users/{userId}")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
-    ResponseEntity<User> findByUserId(@PathVariable("userId") @Min(1) int userId) {
+    ResponseEntity<User> findByUserId(@PathVariable("userId") @Min(1) Long userId) {
         return userService.findByUserId(userId);
     }
 
@@ -65,14 +67,21 @@ public class UserController {
 
     @PutMapping("/user/{userId}")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
-    ResponseEntity<UserResponse> updateUser(@RequestBody @Valid UserRequest userRequest, @PathVariable("userId") @Min(1) int userId) throws Exception {
+    ResponseEntity<UserResponse> updateUser(@RequestBody @Valid UserRequest userRequest, @PathVariable("userId")  Long userId) throws Exception {
         return new ResponseEntity<>(userService.updateUser(userRequest, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/user/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    ResponseEntity<String> deleteUserById(@PathVariable int userId) {
+    ResponseEntity<String> deleteUserById(@PathVariable Long userId) {
         return new ResponseEntity<>(userService.deleteUserById(userId), HttpStatus.OK);
+    }
+
+    @PutMapping("/user/updatePassword/{userId}")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
+    ResponseEntity<UserDTO> updatePassword(@PathVariable Long userId,
+                                           @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest) throws Exception {
+    return new ResponseEntity<>(userService.updatePassword(userId,updatePasswordRequest),HttpStatus.OK);
     }
 
 }
