@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.HashSet;
@@ -47,10 +48,12 @@ public class UserController {
 
     }
 
-    @GetMapping("/users") //ADMIN and EDITOR
+    @GetMapping("/users/{pageNumber}/{pageSize}") //ADMIN and EDITOR
     @PreAuthorize("hasAuthority('ADMIN')")
-    List<UserResponse> findAllUsers() throws Exception {
-        return userService.findAllUsers();
+    List<User> findAllUsers(@PathVariable Integer pageNumber ,
+                                    @PathVariable Integer pageSize) throws Exception {
+
+        return userService.findAllUsers(pageNumber,pageSize);
     }
 
     @GetMapping("/users/{userId}")

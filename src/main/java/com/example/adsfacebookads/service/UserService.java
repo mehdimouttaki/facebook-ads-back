@@ -13,15 +13,15 @@ import com.example.adsfacebookads.mapper.UserDTOMapper;
 import com.example.adsfacebookads.mapper.UserRequestMapper;
 import com.example.adsfacebookads.repository.RoleRepository;
 import com.example.adsfacebookads.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -64,8 +64,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<UserResponse> findAllUsers() throws Exception {
-        return userResponseMapper.sourceListToTargetList(userRepository.findAll());
+    public List<User> findAllUsers(Integer pageNumber , Integer pageSize) throws Exception {
+       Pageable pageable = PageRequest.of(pageNumber,pageSize);
+       Page<User> pageResult = userRepository.findAll(pageable);
+       return pageResult.toList();
+
     }
 
     public ResponseEntity<User> findByUserId(Long userId) {

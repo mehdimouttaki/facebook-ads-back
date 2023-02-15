@@ -15,11 +15,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u where  lower(u.username) = lower(:username)  " +
             "and u.userId <> :userId ")
-    Optional<User> findByUsernameIgnoreCaseDifId(@Param("username") String username, Long userId);
+    Optional<User> findByUsernameIgnoreCaseDifId(String username, Long userId);
 
     @Query("select u from User u where  lower(u.email) = lower(:email)  " +
             "and u.userId <> :userId ")
-    Optional<User> findByEmailIgnoreCaseDifId(@Param("email") String email, Long userId);
+    Optional<User> findByEmailIgnoreCaseDifId(String email, Long userId);
 
 
 
@@ -27,6 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsernameIgnoreCase(String username);
 
     Optional<User> findByEmailIgnoreCase(String email);
+
     @Query("select u from User u where  lower(u.username) = lower(:username) ")
     User findByUsername(@Param("username") String username);
 }
