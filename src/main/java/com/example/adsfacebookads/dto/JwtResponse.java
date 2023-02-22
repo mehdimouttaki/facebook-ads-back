@@ -13,6 +13,8 @@ import java.util.List;
 public class JwtResponse {
     private String token;
     private String username;
+    private String firstName;
+    private String lastName;
     private List<String> roles;
     private Long userId;
 }

@@ -40,7 +40,7 @@ public class AuthController {
                 .stream().map(item -> item.getAuthority())
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getUsername(),
+                userDetails.getUsername(),userDetails.getUser().getFirstName(),userDetails.getUser().getLastName(),
                 roles,userDetails.getUser().getUserId()));
     }
 }
