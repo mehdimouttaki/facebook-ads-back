@@ -154,8 +154,19 @@ public class UserService {
            } else {
                throw new ResourceNotFoundException("NEW PASSWORD DOES NOT MATCH ITS CONFIRMATION");
            }
-       }else
-           throw new ResourceNotFoundException("Wrong Password");
+       }else {
+           throw new RuntimeException("Wrong Password");
+       }
+    }
+
+
+    public UserDTO changePassword(Long userId,String newPassword) throws Exception {
+
+        User byUserId = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(String.format("The User Id : %d : Not Found", userId)));
+
+        byUserId.setPassword(bCryptPasswordEncoder.encode(newPassword));
+
+        return userDTOMapper.sourceToTarget(userRepository.save(byUserId));
     }
 }
 

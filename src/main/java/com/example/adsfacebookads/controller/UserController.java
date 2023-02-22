@@ -42,7 +42,6 @@ public class UserController {
             roles.add(new Role("ADMIN"));
             roles.add(new Role("USER"));
             User user = new User("ADMIN", "Admin", "admin@admin.com", "admin", passwordEncoder.encode("123456"), roles);
-
             userService.save(user);
         }
 
@@ -85,6 +84,13 @@ public class UserController {
     ResponseEntity<UserDTO> updatePassword(@PathVariable Long userId,
                                            @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest) throws Exception {
     return new ResponseEntity<>(userService.updatePassword(userId,updatePasswordRequest),HttpStatus.OK);
+    }
+
+    @PutMapping("/user/changePassword/{userId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    ResponseEntity<UserDTO> updateUserPassword(@PathVariable Long userId,
+                                           @Valid @RequestBody String changePassword) throws Exception {
+        return new ResponseEntity<>(userService.changePassword(userId,changePassword),HttpStatus.OK);
     }
 
 }
