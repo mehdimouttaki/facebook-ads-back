@@ -69,7 +69,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<UserResponse> findAllUsers(List<SearchRequest> searchRequests ,Integer pageNumber , Integer pageSize) throws Exception {
+    public List<UserResponse> findAllUsers(Integer pageNumber , Integer pageSize) throws Exception {
 
         PageRequest paging = PageRequest.of(pageNumber, pageSize);
 

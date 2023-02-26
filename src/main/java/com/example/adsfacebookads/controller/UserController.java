@@ -57,7 +57,7 @@ public class UserController {
                                             @PathVariable Integer pageSize,
                                              @RequestBody(required = false) List<SearchRequest> searchRequests ) throws Exception {
         Long searchCount = userService.count();
-        List<UserResponse> userResponse = userService.findAllUsers(searchRequests,pageNumber, pageSize);
+        List<UserResponse> userResponse = userService.findAllUsers(pageNumber, pageSize);
         SearchResponse<UserResponse> searchRequest = new SearchResponse<>();
         searchRequest.setSearchCount(searchCount);
         searchRequest.setSearchValue(userResponse);
