@@ -1,14 +1,16 @@
 package com.example.adsfacebookads.controller;
 
 
-import com.example.adsfacebookads.dto.UpdatePasswordRequest;
-import com.example.adsfacebookads.dto.UserDTO;
-import com.example.adsfacebookads.dto.UserRequest;
-import com.example.adsfacebookads.dto.UserResponse;
+import com.example.adsfacebookads.dto.*;
 import com.example.adsfacebookads.entity.Role;
 import com.example.adsfacebookads.entity.User;
+import com.example.adsfacebookads.repository.UserRepository;
 import com.example.adsfacebookads.service.UserService;
+import com.example.adsfacebookads.utils.FacebookCodeRsp;
+import com.example.adsfacebookads.utils.FacebookResponse;
+import com.example.adsfacebookads.utils.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +35,8 @@ public class UserController {
     UserService userService;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostConstruct
     public void init() {
@@ -47,12 +51,20 @@ public class UserController {
 
     }
 
-    @GetMapping("/users/{pageNumber}/{pageSize}") //ADMIN and EDITOR
+    @PostMapping("/users/{pageNumber}/{pageSize}") //ADMIN
     @PreAuthorize("hasAuthority('ADMIN')")
-    List<User> findAllUsers(@PathVariable Integer pageNumber ,
-                                    @PathVariable Integer pageSize) throws Exception {
+    FacebookResponse<SearchResponse<UserResponse>> findAllUsers(@PathVariable Integer pageNumber ,
+                                            @PathVariable Integer pageSize,
+                                             @RequestBody(required = false) List<SearchRequest> searchRequests ) throws Exception {
+        Long searchCount = userService.count();
+        List<UserResponse> userResponse = userService.findAllUsers(searchRequests,pageNumber, pageSize);
+        SearchResponse<UserResponse> searchRequest = new SearchResponse<>();
+        searchRequest.setSearchCount(searchCount);
+        searchRequest.setSearchValue(userResponse);
+        return new FacebookResponse<>(FacebookCodeRsp.ACCEPTED, searchRequest);
 
-        return userService.findAllUsers(pageNumber,pageSize);
+
+
     }
 
     @GetMapping("/users/{userId}")

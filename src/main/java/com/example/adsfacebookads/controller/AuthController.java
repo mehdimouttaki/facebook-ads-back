@@ -3,6 +3,7 @@ package com.example.adsfacebookads.controller;
 
 import com.example.adsfacebookads.dto.JwtResponse;
 import com.example.adsfacebookads.dto.LoginRequest;
+import com.example.adsfacebookads.exception.ResourceNotFoundException;
 import com.example.adsfacebookads.jwt.JwtUtils;
 import com.example.adsfacebookads.service.MyCustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class AuthController {
                 userDetails.getUsername(),userDetails.getUser().getFirstName(),userDetails.getUser().getLastName(),
                 roles,userDetails.getUser().getUserId()));
         }catch (Exception e){
-            return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
+            throw new ResourceNotFoundException(String.format("username or password incorrect "));
         }
     }
 }

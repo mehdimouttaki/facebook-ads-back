@@ -1,10 +1,7 @@
 package com.example.adsfacebookads.service;
 
 
-import com.example.adsfacebookads.dto.UpdatePasswordRequest;
-import com.example.adsfacebookads.dto.UserDTO;
-import com.example.adsfacebookads.dto.UserRequest;
-import com.example.adsfacebookads.dto.UserResponse;
+import com.example.adsfacebookads.dto.*;
 import com.example.adsfacebookads.entity.Role;
 import com.example.adsfacebookads.entity.User;
 import com.example.adsfacebookads.exception.ResourceNotFoundException;
@@ -13,10 +10,17 @@ import com.example.adsfacebookads.mapper.UserDTOMapper;
 import com.example.adsfacebookads.mapper.UserRequestMapper;
 import com.example.adsfacebookads.repository.RoleRepository;
 import com.example.adsfacebookads.repository.UserRepository;
+import com.example.adsfacebookads.utils.SearchResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +30,8 @@ import java.util.*;
 @Service
 public class UserService {
 
-
+    @Autowired
+    AuthenticationManager authenticationManager;
    private final UserRepository userRepository;
 
 
@@ -64,10 +69,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> findAllUsers(Integer pageNumber , Integer pageSize) throws Exception {
-       Pageable pageable = PageRequest.of(pageNumber,pageSize);
-       Page<User> pageResult = userRepository.findAll(pageable);
-       return pageResult.toList();
+    public List<UserResponse> findAllUsers(List<SearchRequest> searchRequests ,Integer pageNumber , Integer pageSize) throws Exception {
+
+        PageRequest paging = PageRequest.of(pageNumber, pageSize);
+
+        Page<User> pagedResult = userRepository.findAll(paging);
+
+        if (pagedResult.hasContent()) {
+            return userResponseMapper.sourceListToTargetList(pagedResult.getContent());
+        } else {
+            return new ArrayList<>();
+        }
 
     }
 
@@ -167,6 +179,11 @@ public class UserService {
         byUserId.setPassword(bCryptPasswordEncoder.encode(newPassword));
 
         return userDTOMapper.sourceToTarget(userRepository.save(byUserId));
+    }
+
+
+    public Long count() {
+        return userRepository.count();
     }
 }
 
