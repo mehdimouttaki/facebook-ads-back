@@ -119,27 +119,28 @@ public class UserService {
     public UserResponse updateUser(UserRequest userRequest, Long userId) throws Exception {
         User oldUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User Id : %d is not found", userId)));
-        User newUser = userRequestMapper.targetToSource(userRequest);
-        if (Objects.nonNull(userRequest.getUsername())){
-            Optional<User> personWitUsernameDifId=userRepository.findByUsernameIgnoreCaseDifId(userRequest.getUsername(),userId);
-            if(personWitUsernameDifId.isPresent())
-            {
-                throw new ResourceNotFoundException(String.format("this username : %s is duplicated ",userRequest.getUsername()));
+        if (Objects.isNull(userRequest.getPassword())) {
+            User newUser = userRequestMapper.targetToSource(userRequest);
+            if (Objects.nonNull(userRequest.getUsername())) {
+                Optional<User> personWitUsernameDifId = userRepository.findByUsernameIgnoreCaseDifId(userRequest.getUsername(), userId);
+                if (personWitUsernameDifId.isPresent()) {
+                    throw new ResourceNotFoundException(String.format("this username : %s is duplicated ", userRequest.getUsername()));
+                }
             }
-        }
 
-        if (Objects.nonNull(userRequest.getEmail())){
-            Optional<User> personWitEmailDifId=userRepository.findByEmailIgnoreCaseDifId(userRequest.getEmail(),userId);
-            if(personWitEmailDifId.isPresent())
-            {
-                throw new ResourceNotFoundException(String.format("this email : %s is duplicated ",userRequest.getEmail()));
+            if (Objects.nonNull(userRequest.getEmail())) {
+                Optional<User> personWitEmailDifId = userRepository.findByEmailIgnoreCaseDifId(userRequest.getEmail(), userId);
+                if (personWitEmailDifId.isPresent()) {
+                    throw new ResourceNotFoundException(String.format("this email : %s is duplicated ", userRequest.getEmail()));
+                }
             }
+            newUser.setRoles(new HashSet<>());
+            userRequest.getRoles().forEach(roleId -> newUser.getRoles().add(roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roleId + " Not Found"))));
+            newUser.setUserId(userId);
+            newUser.setPassword(oldUser.getPassword());
+            return userResponseMapper.sourceToTarget(userRepository.save(newUser));
         }
-        newUser.setRoles(new HashSet<>());
-        userRequest.getRoles().forEach(roleId -> newUser.getRoles().add(roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roleId + " Not Found"))));
-        newUser.setUserId(userId);
-        newUser.setPassword(oldUser.getPassword());
-        return userResponseMapper.sourceToTarget(userRepository.save(newUser));
+        throw new ResourceNotFoundException(String.format("Password is not required in Modify user "));
     }
 
     public String deleteUserById(Long userId) {
