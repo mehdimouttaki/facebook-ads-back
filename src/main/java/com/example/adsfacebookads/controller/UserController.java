@@ -43,9 +43,10 @@ public class UserController {
         boolean existed = userService.existByUsername("admin");
         if (!existed) {
             Set<Role> roles = new HashSet<>();
+            roles.add(new Role("SUPER ADMIN"));
             roles.add(new Role("ADMIN"));
             roles.add(new Role("USER"));
-            User user = new User("ADMIN", "Admin", "admin@admin.com", "admin", passwordEncoder.encode("123456"), roles);
+            User user = new User("ADMIN", "Admin", "admin@admin.com", "admin", passwordEncoder.encode("123456"), roles,1L);
             userService.save(user);
         }
 
@@ -57,11 +58,11 @@ public class UserController {
                                             @PathVariable Integer pageSize,
                                              @RequestBody(required = false) List<SearchRequest> searchRequests ) throws Exception {
         Long searchCount = userService.count();
-        List<UserResponse> userResponse = userService.findAllUsers(pageNumber, pageSize);
-        SearchResponse<UserResponse> searchRequest = new SearchResponse<>();
-        searchRequest.setSearchCount(searchCount);
-        searchRequest.setSearchValue(userResponse);
-        return new FacebookResponse<>(FacebookCodeRsp.ACCEPTED, searchRequest);
+        Page<User> userResponse = userService.findAllUsers(searchRequests,pageNumber, pageSize);
+        SearchResponse searchResponse = new SearchResponse<>();
+        searchResponse.setSearchCount(userResponse.getTotalElements());
+        searchResponse.setSearchValue(userResponse.getContent());
+        return new FacebookResponse<>(FacebookCodeRsp.ACCEPTED, searchResponse);
 
 
 
@@ -73,10 +74,18 @@ public class UserController {
         return userService.findByUserId(userId);
     }
 
-    @PostMapping("/user") //ADMIN
+    //CreationUser
+    @PostMapping("/user")
     @PreAuthorize("hasAuthority('ADMIN')")
     ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest request) throws Exception {
         return new ResponseEntity<>(userService.createUser(request), HttpStatus.OK);
+    }
+
+    //CreationAdmin
+    @PostMapping("/creationAdmin")
+    @PreAuthorize("hasAuthority('SUPER ADMIN')")
+    ResponseEntity<UserResponse> createAdmin(@RequestBody @Valid UserRequest request) throws Exception {
+        return new ResponseEntity<>(userService.createAdmin(request), HttpStatus.OK);
     }
 
     @PutMapping("/user/{userId}")

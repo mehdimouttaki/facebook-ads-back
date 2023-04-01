@@ -30,18 +30,22 @@ public class User {
     @Column(length = 100)
 //    @Size(min = 2, max = 10, message = "Password should be min 2 characters and max 10 characters")
     private String password;
+    @Column(name="admin_id")
+    @NotNull
+    private Long adminId;
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-    public User(String firstName, String lastName, String email, String username, String password, Set<Role> roles) {
+    public User(String firstName, String lastName, String email, String username, String password, Set<Role> roles,Long adminId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.username = username;
         this.password = password;
         this.roles = roles;
+        this.adminId=adminId;
     }
 }

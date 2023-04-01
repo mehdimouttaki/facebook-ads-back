@@ -3,6 +3,7 @@ package com.example.adsfacebookads.service;
 
 import com.example.adsfacebookads.dto.*;
 import com.example.adsfacebookads.entity.Role;
+import com.example.adsfacebookads.entity.SearchRequestValues;
 import com.example.adsfacebookads.entity.User;
 import com.example.adsfacebookads.exception.ResourceNotFoundException;
 import com.example.adsfacebookads.mapper.USerResponseMapper;
@@ -14,13 +15,8 @@ import com.example.adsfacebookads.utils.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -69,19 +65,30 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<UserResponse> findAllUsers(Integer pageNumber , Integer pageSize) throws Exception {
-
+    public Page<User> findAllUsers(List<SearchRequest> searchRequests,Integer pageNumber , Integer pageSize) throws Exception {
+        SearchRequestValues searchRequestValues=new SearchRequestValues();
+        this.getSearchRequestsValues(searchRequests, searchRequestValues);
         PageRequest paging = PageRequest.of(pageNumber, pageSize);
 
-        Page<User> pagedResult = userRepository.findAll(paging);
+        Page<User> pagedResult = userRepository.findAllByAdminId(searchRequestValues.getAdminId(), paging);
+        Long count=userRepository.countUserRsp(searchRequestValues.getAdminId());
+        SearchResponse<User> response=new SearchResponse<>();
+        response.setSearchValue(pagedResult.getContent());
+        response.setSearchCount(count);
 
-        if (pagedResult.hasContent()) {
-            return userResponseMapper.sourceListToTargetList(pagedResult.getContent());
-        } else {
-            return new ArrayList<>();
-        }
+       return pagedResult ;
 
     }
+
+    private void getSearchRequestsValues(List<SearchRequest> searchRequestList, SearchRequestValues searchRequestValues)  {
+
+        for (SearchRequest request : searchRequestList) {
+
+            if (request.getField().equals("adminId")) {
+                searchRequestValues.setAdminId(Long.valueOf(request.getValue()));
+
+
+    }}}
 
     public ResponseEntity<User> findByUserId(Long userId) {
         User user = userRepository.findById(userId)
@@ -91,28 +98,31 @@ public class UserService {
 
     public UserResponse createUser(UserRequest request) throws Exception {
         User user = userRequestMapper.targetToSource(request);
+        if (Objects.nonNull(request.getAdminId())) {
+            if (Objects.nonNull(request.getUsername())) {
+                Optional<User> userWIthUsername = userRepository.findByUsernameIgnoreCase(request.getUsername());
+                if (userWIthUsername.isPresent()) {
+                    throw new ResourceNotFoundException(String.format("username name : %s is duplicated", user.getUsername()));
 
-        if (Objects.nonNull(request.getUsername())){
-            Optional<User> userWIthUsername = userRepository.findByUsernameIgnoreCase(request.getUsername());
-            if(userWIthUsername.isPresent()){
-                throw new ResourceNotFoundException(String.format("username name : %s is duplicated" , user.getUsername()));
-
+                }
             }
-        }
 
-        if (Objects.nonNull(request.getEmail())){
-            Optional<User> userWithEmail = userRepository.findByEmailIgnoreCase(request.getEmail());
-            if(userWithEmail.isPresent()){
-                throw new ResourceNotFoundException(String.format("email : %s  is duplicated " , user.getEmail()));
+            if (Objects.nonNull(request.getEmail())) {
+                Optional<User> userWithEmail = userRepository.findByEmailIgnoreCase(request.getEmail());
+                if (userWithEmail.isPresent()) {
+                    throw new ResourceNotFoundException(String.format("email : %s  is duplicated ", user.getEmail()));
 
+                }
             }
+            user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+            user.setRoles(new HashSet<>());
+            for (Long roles : request.getRoles()) {
+                Role role = roleRepository.findById(roles).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roles + " Not Found"));
+                user.getRoles().add(role);
+            }
+            user.setAdminId(request.getAdminId());
         }
-        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
-        user.setRoles(new HashSet<>());
-        for (Long roles : request.getRoles()) {
-            Role role = roleRepository.findById(roles).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roles + " Not Found"));
-            user.getRoles().add(role);
-        }
+
         return userResponseMapper.sourceToTarget(userRepository.save(user));
     }
 
@@ -185,6 +195,34 @@ public class UserService {
 
     public Long count() {
         return userRepository.count();
+    }
+
+    public UserResponse createAdmin(UserRequest request) throws Exception {
+        User user = userRequestMapper.targetToSource(request);
+
+        if (Objects.nonNull(request.getUsername())) {
+            Optional<User> userWIthUsername = userRepository.findByUsernameIgnoreCase(request.getUsername());
+            if (userWIthUsername.isPresent()) {
+                throw new ResourceNotFoundException(String.format("username name : %s is duplicated", user.getUsername()));
+
+            }
+        }
+
+        if (Objects.nonNull(request.getEmail())) {
+            Optional<User> userWithEmail = userRepository.findByEmailIgnoreCase(request.getEmail());
+            if (userWithEmail.isPresent()) {
+                throw new ResourceNotFoundException(String.format("email : %s  is duplicated ", user.getEmail()));
+
+            }
+        }
+        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+        user.setRoles(new HashSet<>());
+        for (Long roles : request.getRoles()) {
+            Role role = roleRepository.findById(roles).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roles + " Not Found"));
+            user.getRoles().add(role);
+        }
+        return userResponseMapper.sourceToTarget(userRepository.save(user));
+
     }
 }
 

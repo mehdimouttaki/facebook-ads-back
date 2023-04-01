@@ -17,5 +17,13 @@ public class UserResponse {
     private List<String> roles;
 
 
-
+    public UserResponse(Long id, String firstName, String lastName, String email, String username, String password, List<String> roles) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
 }
