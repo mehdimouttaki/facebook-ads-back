@@ -13,7 +13,7 @@ import java.util.List;
 public interface UserDTOMapper extends GenericMapper<User, UserDTO> {
 
     @Override
-    @Mapping(source = "userId", target = "id")
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "password", target = "password")
     @Mapping(source = "firstName", target = "firstName")
@@ -23,7 +23,7 @@ public interface UserDTOMapper extends GenericMapper<User, UserDTO> {
     UserDTO sourceToTarget(User source) throws Exception, IllegalAccessException;
 
     @Override
-    @Mapping(target = "userId", source = "id")
+    @Mapping(target = "id", source = "id")
     @Mapping(target = "username", source = "username")
     @Mapping(target = "password", source = "password")
     @Mapping(target = "firstName", source = "firstName")

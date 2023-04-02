@@ -22,11 +22,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     @Query("select u from User u where  lower(u.username) = lower(:username)  " +
-            "and u.userId <> :userId ")
+            "and u.id <> :userId ")
     Optional<User> findByUsernameIgnoreCaseDifId(@Param("username") String username,@Param("userId") Long userId);
 
     @Query("select u from User u where  lower(u.email) = lower(:email)  " +
-            "and u.userId <> :userId ")
+            "and u.id <> :userId ")
     Optional<User> findByEmailIgnoreCaseDifId(@Param("email") String email, @Param("userId") Long userId);
 
 
@@ -39,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where  lower(u.username) = lower(:username) ")
     User findByUsername(@Param("username") String username);
 
-    @Query("select count(u.userId) " +
+    @Query("select count(u.id) " +
             "from User u " +
             "where (:adminId is null or (u.adminId) =:adminId) "
 

@@ -146,7 +146,7 @@ public class UserService {
             }
             newUser.setRoles(new HashSet<>());
             userRequest.getRoles().forEach(roleId -> newUser.getRoles().add(roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role with id " + roleId + " Not Found"))));
-            newUser.setUserId(userId);
+            newUser.setId(userId);
             newUser.setPassword(oldUser.getPassword());
             return userResponseMapper.sourceToTarget(userRepository.save(newUser));
         }
@@ -156,7 +156,7 @@ public class UserService {
     public String deleteUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User Id : %d is not found", userId)));
-        userRepository.deleteById(user.getUserId());
+        userRepository.deleteById(user.getId());
         return "User id: " + userId + " is deleted.";
     }
 

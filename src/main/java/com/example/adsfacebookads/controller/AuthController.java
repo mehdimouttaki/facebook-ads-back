@@ -45,7 +45,7 @@ public class AuthController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getUsername(),userDetails.getUser().getFirstName(),userDetails.getUser().getLastName(),
-                roles,userDetails.getUser().getUserId()));
+                roles,userDetails.getUser().getId()));
         }catch (Exception e){
             throw new ResourceNotFoundException(String.format("username or password incorrect "));
         }
