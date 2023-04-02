@@ -46,7 +46,7 @@ public class UserController {
             roles.add(new Role("SUPER ADMIN"));
             roles.add(new Role("ADMIN"));
             roles.add(new Role("USER"));
-            User user = new User("SuperAdmin", "SuperAdmin", "superadmin@admin.com", "superadmin", passwordEncoder.encode("123456"),roles,null);
+            User user = new User("SuperAdmin", "SuperAdmin", "superadmin@admin.com", "superadmin", passwordEncoder.encode("123456"),roles);
             userService.save(user);
         }
 
