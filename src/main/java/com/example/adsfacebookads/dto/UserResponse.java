@@ -1,12 +1,16 @@
 package com.example.adsfacebookads.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponse {
     private Long id;
     private String firstName;
@@ -17,13 +21,5 @@ public class UserResponse {
     private List<String> roles;
 
 
-    public UserResponse(Long id, String firstName, String lastName, String email, String username, String password, List<String> roles) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.username = username;
-        this.password = password;
-        this.roles = roles;
-    }
+
 }

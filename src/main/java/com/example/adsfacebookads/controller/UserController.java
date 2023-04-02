@@ -81,12 +81,7 @@ public class UserController {
         return new ResponseEntity<>(userService.createUser(request), HttpStatus.OK);
     }
 
-    //CreationAdmin
-    @PostMapping("/creationAdmin")
-    @PreAuthorize("hasAuthority('SUPER ADMIN')")
-    ResponseEntity<UserResponse> createAdmin(@RequestBody @Valid UserRequest request) throws Exception {
-        return new ResponseEntity<>(userService.createAdmin(request), HttpStatus.OK);
-    }
+
 
     @PutMapping("/user/{userId}")
     @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
