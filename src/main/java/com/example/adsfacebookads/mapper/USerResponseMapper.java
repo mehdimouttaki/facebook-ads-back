@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface USerResponseMapper extends GenericMapper<User, UserResponse> {
     @Override
-    @Mapping(source = "id", target = "id")
+
     @Mapping(source = "username", target = "username")
     @Mapping(source = "password", target = "password")
     @Mapping(source = "firstName", target = "firstName")
@@ -22,7 +22,7 @@ public interface USerResponseMapper extends GenericMapper<User, UserResponse> {
     UserResponse sourceToTarget(User source) throws Exception;
 
     @Override
-    @Mapping(target = "id", source = "id")
+
     @Mapping(target = "username", source = "username")
     @Mapping(target = "password", source = "password")
     @Mapping(target = "firstName", source = "firstName")
